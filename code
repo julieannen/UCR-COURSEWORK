@@ -1,0 +1,316 @@
+var score;
+
+function math_random_int(a, b) {
+  if (a > b) {
+    // Swap a and b to ensure a is smaller.
+    var c = a;
+    a = b;
+    b = c;
+  }
+  return Math.floor(Math.random() * (b - a + 1) + a);
+}
+
+function moving_west(this_sprite) {
+  moveInDirection(this_sprite, getProp(this_sprite, "speed"), "West");
+}
+
+function spinning_right(this_sprite) {
+  turn(this_sprite, 6, "right");
+}
+
+function growing(this_sprite) {
+  changePropBy(this_sprite, "scale", 1);
+}
+
+function swimming_left_and_right(this_sprite) {
+  if (getProp(this_sprite, "direction") == 0) {
+    mirrorSprite(this_sprite, "right");
+  } else if (getProp(this_sprite, "direction") == 180) {
+    mirrorSprite(this_sprite, "left");
+  }
+  moveForward(this_sprite, getProp(this_sprite, "speed"));
+  if (isTouchingEdges(this_sprite)) {
+    edgesDisplace(this_sprite);
+    changePropBy(this_sprite, "direction", 180);
+  }
+}
+
+function moving_east(this_sprite) {
+  moveInDirection(this_sprite, getProp(this_sprite, "speed"), "East");
+}
+
+function moving_north(this_sprite) {
+  moveInDirection(this_sprite, getProp(this_sprite, "speed"), "North");
+}
+
+function patrolling(this_sprite) {
+  moveForward(this_sprite, getProp(this_sprite, "speed"));
+  if (isTouchingEdges(this_sprite)) {
+    edgesDisplace(this_sprite);
+    changePropBy(this_sprite, "direction", 180);
+  }
+  if (getProp(this_sprite, "direction") > 270 || getProp(this_sprite, "direction") < 90) {
+    mirrorSprite(this_sprite, "right");
+  } else {
+    mirrorSprite(this_sprite, "left");
+  }
+
+}
+
+function moving_south(this_sprite) {
+  moveInDirection(this_sprite, getProp(this_sprite, "speed"), "South");
+}
+
+function jittering(this_sprite) {
+  changePropBy(this_sprite, "scale", math_random_int(-1, 1));
+}
+
+function wandering(this_sprite) {
+  withPercentChance(20, function () {
+    changePropBy(this_sprite, "direction", math_random_int(-25, 25));
+  });
+  moveForward(this_sprite, getProp(this_sprite, "speed"));
+  if (isTouchingEdges(this_sprite)) {
+    edgesDisplace(this_sprite);
+    changePropBy(this_sprite, "direction", math_random_int(135, 225));
+  }
+  if (getProp(this_sprite, "direction") > 270 || getProp(this_sprite, "direction") < 90) {
+    mirrorSprite(this_sprite, "right");
+  } else {
+    mirrorSprite(this_sprite, "left");
+  }
+
+}
+
+function shrinking(this_sprite) {
+  changePropBy(this_sprite, "scale", -1);
+}
+
+function spinning_left(this_sprite) {
+  turn(this_sprite, 6, "left");
+}
+
+function moving_with_arrow_keys(this_sprite) {
+  if (isKeyPressed("up")) {
+    moveInDirection(this_sprite, getProp(this_sprite, "speed"), "North");
+  }
+  if (isKeyPressed("down")) {
+    moveInDirection(this_sprite, getProp(this_sprite, "speed"), "South");
+  }
+  if (isKeyPressed("left")) {
+    moveInDirection(this_sprite, getProp(this_sprite, "speed"), "West");
+  }
+  if (isKeyPressed("right")) {
+    moveInDirection(this_sprite, getProp(this_sprite, "speed"), "East");
+  }
+}
+
+function driving_with_arrow_keys(this_sprite) {
+  if (isKeyPressed("up")) {
+    moveForward(this_sprite, getProp(this_sprite, "speed"));
+  }
+  if (isKeyPressed("down")) {
+    moveBackward(this_sprite, getProp(this_sprite, "speed"));
+  }
+  if (isKeyPressed("left")) {
+    changePropBy(this_sprite, "direction", -5);
+    changePropBy(this_sprite, "rotation", -5);
+  }
+  if (isKeyPressed("right")) {
+    changePropBy(this_sprite, "direction", 5);
+    changePropBy(this_sprite, "rotation", 5);
+  }
+  if (isTouchingEdges(this_sprite)) {
+    edgesDisplace(this_sprite);
+  }
+}
+
+function fluttering(this_sprite) {
+  changePropBy(this_sprite, "y", math_random_int(-1, 1));
+}
+
+function wobbling(this_sprite) {
+  withPercentChance(50, function () {
+    setProp(this_sprite, "rotation", math_random_int(-1, 1));
+  });
+}
+
+function moving_west_and_looping(this_sprite) {
+  mirrorSprite(this_sprite, "left");
+  moveInDirection(this_sprite, getProp(this_sprite, "speed"), "West");
+  if (getProp(this_sprite, "x") < -50) {
+    setProp(this_sprite, "x", 450);
+  }
+}
+
+function moving_east_and_looping(this_sprite) {
+  mirrorSprite(this_sprite, "right");
+  moveInDirection(this_sprite, getProp(this_sprite, "speed"), "East");
+  if (getProp(this_sprite, "x") > 450) {
+    setProp(this_sprite, "x", -50);
+  }
+}
+
+function moving_north_and_looping(this_sprite) {
+  moveInDirection(this_sprite, getProp(this_sprite, "speed"), "North");
+  if (getProp(this_sprite, "y") > 450) {
+    setProp(this_sprite, "y", -50);
+  }
+}
+
+function moving_south_and_looping(this_sprite) {
+  moveInDirection(this_sprite, getProp(this_sprite, "speed"), "South");
+  if (getProp(this_sprite, "y") < -50) {
+    setProp(this_sprite, "y", 450);
+  }
+}
+
+setBackgroundImageAs("desk_1");
+showTitleScreen('EcoExplorer', 'press a to continue');
+makeNewSpriteAnon("yellow alien", ({"x":192,"y":321}));
+setProp(({costume: "yellow alien"}), "scale", 175);
+
+keyPressed("when", "a", function () {
+  hideTitleScreen();
+  showTitleScreen('Mission 1: Land', 'use arrows to collect seeds to plant');
+});
+
+keyPressed("when", "left", function () {
+  hideTitleScreen();
+});
+
+atTime(5, "seconds", function (extraArgs) {
+  setBackgroundImageAs("background_landscape_03_1");
+  hideTitleScreen();
+  setProp(({costume: "yellow alien"}), "scale", 130);
+  jumpTo(({costume: "yellow alien"}), ({"x":61,"y":314}));
+  addBehaviorSimple(({costume: "yellow alien"}), new Behavior(moving_with_arrow_keys, []));
+  makeNumSprites(3, "seed_1");
+  setProp(({costume: "seed_1"}), "scale", 50);
+  addBehaviorSimple(({costume: "seed_1"}), new Behavior(moving_west_and_looping, []));
+  makeNumSprites(2, "greentree_08_1");
+  addBehaviorSimple(({costume: "greentree_08_1"}), new Behavior(moving_west_and_looping, []));
+  changePropBy(({costume: "greentree_08_1"}), "x", 400);
+  score = 0;
+});
+
+checkTouching("when", ({costume: "yellow alien"}), ({costume: "seed_1"}), function (extraArgs) {
+  score = (typeof score == 'number' ? score : 0) + 10;
+  printText(textJoin("Score: ", score));
+  setProp(({id: extraArgs.objectSprite}), "x", 600);
+  setProp(({id: extraArgs.objectSprite}), "y", math_random_int(50, 350));
+  removeBehaviorSimple(({id: extraArgs.subjectSprite}), new Behavior(wobbling, []));
+  removeTint(({costume: "yellow alien"}));
+  if (score >= 100) {
+    removeAllBehaviors(({costume: "all"}));
+    addBehaviorSimple(({costume: "yellow alien"}), new Behavior(moving_east, []));
+    destroy(({costume: "greentree_08_1"}));
+    destroy(({costume: "seed_1"}));
+    showTitleScreen('Mission Complete. Space to continue', textJoin("Score: ", score));
+  }
+});
+
+checkTouching("when", ({costume: "yellow alien"}), ({costume: "greentree_08_1"}), function (extraArgs) {
+  score = (typeof score == 'number' ? score : 0) + -5;
+  printText(textJoin("Score: ", score));
+  addBehaviorSimple(({id: extraArgs.subjectSprite}), new Behavior(wobbling, []));
+  setTint(({costume: "yellow alien"}), '#66ff99');
+  changePropBy(({id: extraArgs.objectSprite}), "y", 400);
+});
+
+keyPressed("when", "space", function () {
+  hideTitleScreen();
+  setBackgroundImageAs("sci_fi_1");
+  showTitleScreen('Mission 2: Air', 'Catch the air pollution to collect points. Press b to start');
+});
+
+keyPressed("when", "b", function () {
+  hideTitleScreen();
+  makeNewSpriteAnon("soap_1", ({"x":199,"y":387}));
+  setProp(({costume: "soap_1"}), "scale", 50);
+  jumpTo(({costume: "soap_1"}), ({"x":195,"y":383}));
+  removeBehaviorSimple(({costume: "yellow alien"}), new Behavior(moving_east, []));
+  addBehaviorSimple(({costume: "soap_1"}), new Behavior(moving_with_arrow_keys, []));
+  makeNumSprites(5, "cloud");
+  setProp(({costume: "cloud"}), "scale", 50);
+  addBehaviorSimple(({costume: "cloud"}), new Behavior(moving_south_and_looping, []));
+  makeNumSprites(10, "cloud_1");
+  addBehaviorSimple(({costume: "cloud_1"}), new Behavior(moving_south_and_looping, []));
+  changePropBy(({costume: "cloud_1"}), "x", 50);
+  score = 0;
+});
+
+checkTouching("when", ({costume: "soap_1"}), ({costume: "cloud_1"}), function (extraArgs) {
+  setAnimation(({id: extraArgs.objectSprite}), "cloud_2");
+  setProp(({id: extraArgs.objectSprite}), "x", 600);
+  setProp(({id: extraArgs.objectSprite}), "y", math_random_int(50, 350));
+  score = (typeof score == 'number' ? score : 0) + 5;
+  printText(textJoin("Score: ", score));
+  if (score >= 50) {
+    removeAllBehaviors(({costume: "all"}));
+    destroy(({costume: "all"}));
+    showTitleScreen('Mission 2 complete. Press c to continue', textJoin("Score: ", score));
+  }
+});
+
+keyPressed("when", "c", function () {
+  hideTitleScreen();
+  setBackgroundImageAs("floating_ship_1");
+  showTitleScreen('Mission 3: Sea', 'Collect all the trash. Press d to continue.');
+});
+
+keyPressed("when", "d", function () {
+  hideTitleScreen();
+  setBackgroundImageAs("background_underwater_05_1");
+  makeNewSpriteAnon("yellow alien", ({"x":99,"y":206}));
+  addBehaviorSimple(({costume: "yellow alien"}), new Behavior(moving_with_arrow_keys, []));
+  makeNumSprites(4, "wrench_simple_1");
+  makeNumSprites(3, "clog_1");
+  makeNumSprites(3, "soda_1");
+  makeNumSprites(3, "shell_09_1");
+  makeNumSprites(3, "cuteanimals_tuna_1");
+  makeNumSprites(3, "creature_10_1");
+  setProp(({costume: "wrench_simple_1"}), "scale", 70);
+  setProp(({costume: "clog_1"}), "scale", 70);
+  setProp(({costume: "soda_1"}), "scale", 50);
+  setProp(({costume: "cuteanimals_tuna_1"}), "scale", 50);
+  setProp(({costume: "creature_10_1"}), "scale", 50);
+  setProp(({costume: "shell_09_1"}), "scale", 50);
+  addBehaviorSimple(({costume: "cuteanimals_tuna_1"}), new Behavior(swimming_left_and_right, []));
+  addBehaviorSimple(({costume: "creature_10_1"}), new Behavior(swimming_left_and_right, []));
+  addBehaviorSimple(({costume: "shell_09_1"}), new Behavior(moving_west_and_looping, []));
+  addBehaviorSimple(({costume: "wrench_simple_1"}), new Behavior(wandering, []));
+  addBehaviorSimple(({costume: "clog_1"}), new Behavior(wandering, []));
+  addBehaviorSimple(({costume: "soda_1"}), new Behavior(wandering, []));
+  score = 0;
+});
+
+checkTouching("when", ({costume: "yellow alien"}), ({costume: "wrench_simple_1"}), function (extraArgs) {
+  destroy(({id: extraArgs.objectSprite}));
+  score = (typeof score == 'number' ? score : 0) + 5;
+  printText(textJoin("Score: ", score));
+});
+
+checkTouching("when", ({costume: "yellow alien"}), ({costume: "clog_1"}), function (extraArgs) {
+  destroy(({id: extraArgs.objectSprite}));
+  score = (typeof score == 'number' ? score : 0) + 5;
+  printText(textJoin("Score: ", score));
+});
+
+checkTouching("when", ({costume: "yellow alien"}), ({costume: "soda_1"}), function (extraArgs) {
+  destroy(({id: extraArgs.objectSprite}));
+  score = (typeof score == 'number' ? score : 0) + 5;
+  printText(textJoin("Score: ", score));
+  if (score >= 40) {
+    removeAllBehaviors(({costume: "all"}));
+    destroy(({costume: "all"}));
+    showTitleScreen('Mission 3 complete.', 'You\'ve cleared the land, air, and sea. Press x to finish.');
+  }
+});
+
+keyPressed("when", "x", function () {
+  hideTitleScreen();
+  setBackgroundImageAs("rainbow");
+  makeNewSpriteAnon("yellow alien", ({"x":197,"y":319}));
+  printText('Congratulations on helping the planet! You planted 10 trees, cleaned 10 clouds from pollution, and cleared the ocean of trash. You\'ve reached your destination of a happier planet!');
+});
